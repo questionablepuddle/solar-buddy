@@ -1,0 +1,72 @@
+{
+  "name": "solar-buddy",
+  "displayName": "Solar Buddy",
+  "description": "Sprout, a solarpunk seedling who lives in your sidebar, hops onto your errors, and coaches you through a project one step at a time.",
+  "version": "0.1.0",
+  "publisher": "you",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": ["Other"],
+  "//": "activationEvents says WHEN the extension wakes up. onStartupFinished = shortly after VS Code opens.",
+  "activationEvents": ["onStartupFinished"],
+  "main": "./src/extension.js",
+  "contributes": {
+    "//": "contributes is everything the extension adds to VS Code's UI, declared as data so VS Code can show it before our code even runs.",
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "solarBuddy",
+          "title": "Solar Buddy",
+          "icon": "media/leaf-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "solarBuddy": [
+        {
+          "id": "solarBuddy.stage",
+          "name": "Sprout",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      { "command": "solarBuddy.nextStep", "title": "Solar Buddy: What's next?" },
+      { "command": "solarBuddy.runChecks", "title": "Solar Buddy: Run project checks" },
+      { "command": "solarBuddy.pickQuest", "title": "Solar Buddy: Choose a quest" },
+      { "command": "solarBuddy.rescan", "title": "Solar Buddy: Look at my errors again" }
+    ],
+    "configuration": {
+      "title": "Solar Buddy",
+      "properties": {
+        "solarBuddy.name": {
+          "type": "string",
+          "default": "Sprout",
+          "description": "What to call your buddy."
+        },
+        "solarBuddy.quest": {
+          "type": "string",
+          "default": "trading-bot",
+          "description": "Which questline to coach you through (a file name in the quests/ folder)."
+        },
+        "solarBuddy.checkCommand": {
+          "type": "string",
+          "default": "",
+          "description": "A shell command the buddy runs for 'Run project checks', e.g. 'python -m pytest -q' or 'npm test'. Leave blank to skip."
+        },
+        "solarBuddy.liveliness": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0.2,
+          "maximum": 2,
+          "description": "How bouncy Sprout is. 0.2 is calm, 2 is caffeinated."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node test/logic.test.js"
+  }
+}

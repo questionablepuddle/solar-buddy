@@ -1,0 +1,200 @@
+/* Sprout's look. The scene keeps its own solarpunk palette (greens, warm sun) so it feels
+   like a little world, while text borrows VS Code's theme colours so it stays readable in
+   whatever theme you use. Tokens up top; change one line, change the mood. */
+:root {
+  --sky-top: #bfe8d6;
+  --sky-bottom: #eaf6d8;
+  --sun: #ffe39a;
+  --leaf: #6cbf79;
+  --leaf-deep: #3f8451;
+  --soil: #c9a37a;
+  --soil-deep: #a07d55;
+  --ink: var(--vscode-foreground, #2b3a2e);
+  --card: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.72));
+  --accent: #4f9a5f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sky-top: #1f3a34;
+    --sky-bottom: #24402e;
+    --sun: #e9c878;
+    --soil: #6b5235;
+    --soil-deep: #4e3a24;
+    --card: var(--vscode-editorWidget-background, rgba(20, 30, 24, 0.82));
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--vscode-font-family, system-ui, sans-serif);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+#sky {
+  position: relative;
+  height: 100%;
+  min-height: 320px;
+  background: linear-gradient(var(--sky-top), var(--sky-bottom));
+  overflow: hidden;
+}
+#sun {
+  position: absolute;
+  top: 18px; right: 22px;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--sun), transparent 72%);
+  filter: blur(1px);
+  animation: sun-breathe 7s ease-in-out infinite;
+}
+@keyframes sun-breathe { 50% { transform: scale(1.12); opacity: 0.85; } }
+
+/* drifting motes of pollen/light, pure decoration */
+#motes { position: absolute; inset: 0; pointer-events: none; }
+.mote {
+  position: absolute;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #fff6cf; opacity: 0.6;
+  animation: drift linear infinite;
+}
+@keyframes drift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(14px, -120vh); opacity: 0; }
+}
+
+#field { position: absolute; inset: 0; }
+#ground {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 46px;
+  background: linear-gradient(var(--soil), var(--soil-deep));
+  border-top: 3px solid var(--leaf-deep);
+}
+#ground::before {
+  /* a little row of grass tufts along the top of the soil */
+  content: "";
+  position: absolute; left: 0; right: 0; top: -9px; height: 10px;
+  background:
+    radial-gradient(circle at 10px 10px, var(--leaf) 4px, transparent 5px) repeat-x,
+    radial-gradient(circle at 24px 10px, var(--leaf-deep) 4px, transparent 5px) repeat-x;
+  background-size: 34px 10px;
+}
+
+/* the strip of your real error-line code that buddies run across */
+#codestrip {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 52px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 11px;
+}
+.codeline {
+  white-space: pre;
+  overflow: hidden; text-overflow: ellipsis;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--vscode-textCodeBlock-background, rgba(0, 0, 0, 0.14));
+  opacity: 0.9;
+}
+.codeline .hit { color: #d03b3b; font-weight: 700; text-decoration: underline wavy #d03b3b; }
+
+/* a buddy */
+.buddy {
+  position: absolute;
+  width: 72px; height: 84px;
+  bottom: 44px; left: 50%;
+  margin-left: -36px;
+  transition: left 0.9s cubic-bezier(.3,.8,.3,1), bottom 0.6s ease;
+  will-change: left, bottom, transform;
+  cursor: pointer;
+}
+.buddy .sprout { width: 100%; height: 100%; overflow: visible; }
+
+/* idle: a gentle bob and a slow sway of the sprout */
+.buddy.idle { animation: bob calc(2.6s / var(--live, 1)) ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-6px); } }
+.buddy .s-sprout { transform-origin: 60px 36px; animation: sway 4s ease-in-out infinite; }
+@keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(5deg); } }
+
+/* running: legs/arms pump and the whole body tilts into the motion */
+.buddy.run { animation: run-bob calc(0.32s / var(--live, 1)) ease-in-out infinite; }
+@keyframes run-bob { 50% { transform: translateY(-7px) rotate(2deg); } }
+.buddy.run .s-arm-l { animation: swing calc(0.32s / var(--live, 1)) ease-in-out infinite; }
+.buddy.run .s-arm-r { animation: swing calc(0.32s / var(--live, 1)) ease-in-out infinite reverse; }
+.s-arm-l { transform-origin: 38px 74px; }
+.s-arm-r { transform-origin: 82px 74px; }
+@keyframes swing { 0%, 100% { transform: rotate(-26deg); } 50% { transform: rotate(32deg); } }
+
+/* swinging (arriving by vine from above) */
+.buddy.swing { animation: swing-in 0.9s cubic-bezier(.4,.1,.3,1); transform-origin: top center; }
+@keyframes swing-in {
+  0% { transform: translateY(-120px) rotate(-26deg); }
+  60% { transform: translateY(0) rotate(14deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+/* concentrating: the aura glows and the buddy leans in */
+.buddy.concentrate .s-aura { animation: glow calc(1.4s / var(--live, 1)) ease-in-out infinite; }
+@keyframes glow { 0%, 100% { opacity: 0; } 50% { opacity: 0.85; } }
+.buddy.concentrate .s-sprout { animation: none; transform: rotate(0); }
+.buddy.concentrate { animation: lean 2.4s ease-in-out infinite; }
+@keyframes lean { 50% { transform: translateY(-2px) scale(1.03); } }
+
+/* happy eyes (^^) for celebrate */
+.buddy.happy .s-eyes { display: none; }
+.buddy.happy .s-mouth { d: path("M50 86 Q60 98 70 86"); }
+
+.tag {
+  position: absolute;
+  top: -16px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; white-space: nowrap;
+  background: var(--leaf-deep); color: #fff;
+  padding: 1px 6px; border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* the coaching card / speech */
+#card {
+  position: absolute;
+  left: 10px; right: 10px; top: 10px;
+  background: var(--card);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--vscode-widget-border, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  max-height: 70%;
+  overflow: auto;
+}
+#say { font-weight: 600; line-height: 1.35; }
+#quest { margin-top: 8px; }
+#quest-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--vscode-descriptionForeground); }
+#bar { height: 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.14); margin: 6px 0 10px; overflow: hidden; }
+#bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--leaf), var(--leaf-deep)); transition: width 0.6s ease; }
+#step-title { font-size: 14px; margin: 2px 0 6px; }
+#card p { margin: 0 0 8px; line-height: 1.45; font-size: 12.5px; }
+.muted { color: var(--vscode-descriptionForeground); }
+.hint {
+  background: rgba(255, 211, 107, 0.18);
+  border-left: 3px solid #ffd36b;
+  padding: 6px 8px; border-radius: 0 6px 6px 0;
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+button {
+  font: inherit; font-size: 12px;
+  border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  background: var(--accent); color: #fff;
+}
+button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--vscode-widget-border, rgba(0,0,0,0.2)); }
+button:hover { filter: brightness(1.07); }
+
+#errorlist { list-style: none; margin: 8px 0 0; padding: 0; font-size: 12px; }
+#errorlist li { padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+#errorlist li:hover { background: rgba(0, 0, 0, 0.08); }
+#errorlist .ln { color: var(--vscode-descriptionForeground); font-family: var(--vscode-editor-font-family, monospace); margin-right: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

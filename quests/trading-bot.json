@@ -1,0 +1,69 @@
+{
+  "title": "Build a trading-pattern bot",
+  "about": "An honest path from 'I have a hunch' to 'here's whether it actually works'. The hardest part of this isn't the code — it's not fooling yourself. Each step is small; do it before moving on.",
+  "steps": [
+    {
+      "title": "Pick one precise question",
+      "what": "Write a single sentence your bot will answer, e.g. 'When social-media fear about gold is unusually high, is gold's next-week return higher than usual?' Name the asset, the signal, and the horizon.",
+      "why": "A vague goal ('predict the market') can't be tested or disproven. A precise one can, and that's the whole game.",
+      "hint": "Put the sentence at the top of a new README.md. You'll be surprised how often writing it reveals you haven't decided something.",
+      "say": "What's the one question? Asset, signal, horizon. I'll wait — this is the most important step."
+    },
+    {
+      "title": "Get the data and cache it",
+      "what": "Fetch two things: the price history of the asset, and the signal you're testing. Save them to a data/ folder so you never re-download while experimenting.",
+      "why": "Live-fetching inside your analysis makes runs slow and non-reproducible. Cache once; iterate forever.",
+      "hint": "A tiny function per source — fetch_prices(), fetch_signal() — each writing a CSV. Print the date range and row count so you can eyeball gaps.",
+      "say": "Prices and your signal, saved to disk. Small functions, one per source."
+    },
+    {
+      "title": "Line the two up on dates — carefully",
+      "what": "Join signal and price by date. Decide exactly when each day's signal is KNOWN versus when you could act on it. A signal stamped at a day's close can only be traded the NEXT day.",
+      "why": "Look-ahead is the mistake that makes worthless strategies look brilliant. Almost every too-good backtest has it hiding here.",
+      "hint": "Add a one-day lag between signal and trade on purpose. Later, write a test that scrambles all future data and checks today's features don't change.",
+      "say": "This is the trap everyone falls in. A signal from today's close is tradable tomorrow, not today. Lag it."
+    },
+    {
+      "title": "Turn the raw signal into a feature",
+      "what": "Raw numbers rarely compare across time. Make a feature that asks 'is this unusual?' — for example, today's value minus its trailing-year average, divided by its trailing-year spread (a z-score).",
+      "why": "A fear reading of 0.3 means nothing alone; 'highest in a year' means something. Normalising against the PAST (never the whole history) keeps it honest.",
+      "hint": "Use a rolling window that only looks backwards (pandas .rolling(...).mean() on data up to today). If you used the full history's mean, you just leaked the future again.",
+      "say": "Make it answer 'is this unusual versus its own recent past?' Backward-looking windows only."
+    },
+    {
+      "title": "Define what you're predicting",
+      "what": "Create the target: the asset's return over your horizon, starting the day AFTER the signal. One column, clearly named, aligned to the day the signal was known.",
+      "why": "If the feature and target aren't aligned to the right days, everything downstream is measuring noise or cheating.",
+      "hint": "forward_return(t) = price(t + 1 + horizon) / price(t + 1) - 1. Print a few rows by hand and check the dates with a calendar.",
+      "say": "The thing you're predicting: the return AFTER you could have traded. Check three rows by hand."
+    },
+    {
+      "title": "Does the feature relate to the target at all?",
+      "what": "Before any backtest, just measure the correlation between feature and forward return (the 'information coefficient'). Plot a scatter. Is it even faintly there?",
+      "why": "A backtest can turn pure noise into a pretty equity curve. A plain correlation can't lie as easily — it's your reality check.",
+      "hint": "Expect something tiny, like 0.02–0.05, if it's real at all. Huge correlations usually mean a bug or leakage, not a goldmine.",
+      "say": "Simplest honest test first: do the two even correlate? Small is normal. Huge is a bug."
+    },
+    {
+      "title": "Backtest the honest way: walk forward",
+      "what": "Split time into chunks. Decide your rule using only PAST chunks, then trade the next chunk. Roll forward. Add a one-day execution lag and subtract realistic trading costs.",
+      "why": "Testing a rule on the same data you invented it on is how you fool yourself. Walk-forward is the closest cheap thing to 'would this have worked live?'",
+      "hint": "Re-fit each year using data before that year only. Keep a plain buy-and-hold curve next to yours — beating it is the real bar.",
+      "say": "Only ever trade on a rule built from the past. And always draw buy-and-hold beside you."
+    },
+    {
+      "title": "Try to kill it: the placebo test",
+      "what": "Run your entire pipeline on shuffled or time-shifted signal data, many times. If your 'real' result isn't clearly better than these nonsense runs, you found nothing.",
+      "why": "This is what separates a signal from a coincidence. If random data does as well as yours, yours was random.",
+      "hint": "Shift the signal against prices by a random amount, re-run, record the Sharpe. Do it 200 times. Where does your real number fall in that pile?",
+      "say": "Now attack your own result. Feed it nonsense 200 times. Are you really above the noise?"
+    },
+    {
+      "title": "Decide — and be okay with 'no'",
+      "what": "Write up what you found in plain language, including the parts that didn't work. Decide: is this real enough to keep, or is the honest answer 'mostly noise'?",
+      "why": "'It doesn't work' is a real, valuable result and most honest quant projects land there. Knowing WHY is the skill you were actually building.",
+      "hint": "If it's faint, the usual next move isn't a fancier model — it's more breadth: the same weak signal across hundreds of assets, not one.",
+      "say": "You built the thing. Whatever the answer, you can now tell truth from wishful thinking — that's the win."
+    }
+  ]
+}

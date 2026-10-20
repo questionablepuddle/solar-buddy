@@ -1,0 +1,4 @@
+node_modules/
+.preview/
+*.vsix
+.DS_Store

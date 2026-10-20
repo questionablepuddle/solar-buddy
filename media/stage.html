@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!--
+  Sprout's stage. This whole file is just a normal web page — the only unusual parts are
+  the ${...} tokens, which extension.js fills in before handing the page to VS Code:
+    ${csp}    a Content-Security-Policy: a webview must say exactly what it's allowed to load.
+    ${nonce}  a one-time number; only the <script> tagged with it is allowed to run.
+    ${style}  ${script}  safe URLs to our css/js (you can't just write "stage.js" in a webview).
+  The buddy itself is the <template> near the bottom; stage.js clones it, one per buddy.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="${csp}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="${style}" rel="stylesheet" />
+  <title>Sprout</title>
+</head>
+<body>
+  <div id="sky">
+    <div id="sun"></div>
+    <div id="clouds"></div>
+    <div id="motes"></div>
+
+    <!-- where the buddies live and move -->
+    <div id="field">
+      <!-- when you have errors, your real error-line code is laid out here and buddies run across it -->
+      <div id="codestrip" hidden></div>
+      <div id="ground"></div>
+    </div>
+
+    <!-- the speech bubble / coaching card -->
+    <div id="card">
+      <div id="say"></div>
+      <div id="quest" hidden>
+        <div id="quest-head">
+          <span id="quest-title"></span>
+          <span id="quest-count"></span>
+        </div>
+        <div id="bar"><div id="bar-fill"></div></div>
+        <h2 id="step-title"></h2>
+        <p id="step-what"></p>
+        <p id="step-why" class="muted"></p>
+        <p id="step-hint" class="hint" hidden></p>
+        <div class="row">
+          <button id="btn-next">Mark done → what's next</button>
+          <button id="btn-checks" class="ghost">Run checks</button>
+        </div>
+      </div>
+      <ul id="errorlist" hidden></ul>
+    </div>
+  </div>
+
+  <!-- One buddy. stage.js clones this for every error. Animatable parts are CLASSES (not ids)
+       so the clones stay valid. Compare it with media/sprout.svg, which is the same art with ids. -->
+  <template id="sprout-template">
+    <div class="buddy">
+      <svg class="sprout" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient class="grad-glow" cx="50%" cy="38%" r="55%">
+            <stop offset="0%" stop-color="#ffe6a3" stop-opacity="0.9" />
+            <stop offset="100%" stop-color="#ffe6a3" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <circle class="s-aura" cx="60" cy="58" r="52" fill="#ffe6a3" opacity="0" />
+        <g class="s-sprout">
+          <path d="M60 36 C60 18 46 14 44 2" fill="none" stroke="#4f9a5f" stroke-width="5" stroke-linecap="round" />
+          <path class="s-leaf" d="M44 4 C33 -2 24 6 28 16 C40 18 46 12 44 4 Z" fill="#9adb84" />
+          <circle class="s-bud" cx="44" cy="3" r="5" fill="#ffd36b" />
+        </g>
+        <g class="s-arm s-arm-l">
+          <path d="M38 74 C24 76 16 86 14 98" fill="none" stroke="#54a064" stroke-width="7" stroke-linecap="round" />
+          <circle cx="14" cy="99" r="5" fill="#67b877" />
+        </g>
+        <g class="s-arm s-arm-r">
+          <path d="M82 74 C96 76 104 86 106 98" fill="none" stroke="#54a064" stroke-width="7" stroke-linecap="round" />
+          <circle cx="106" cy="99" r="5" fill="#67b877" />
+        </g>
+        <g class="s-body">
+          <ellipse cx="60" cy="82" rx="34" ry="36" fill="#6cbf79" />
+          <ellipse cx="60" cy="82" rx="34" ry="36" fill="none" stroke="#3f8451" stroke-width="2" opacity="0.5" />
+          <circle cx="44" cy="96" r="2.4" fill="#cdeeb0" opacity="0.8" />
+          <circle cx="74" cy="92" r="2" fill="#cdeeb0" opacity="0.7" />
+        </g>
+        <g class="s-eyes">
+          <circle cx="49" cy="78" r="4.4" fill="#2b3a2e" />
+          <circle cx="71" cy="78" r="4.4" fill="#2b3a2e" />
+          <circle cx="50.4" cy="76.6" r="1.4" fill="#fff" />
+          <circle cx="72.4" cy="76.6" r="1.4" fill="#fff" />
+        </g>
+        <path class="s-mouth" d="M53 90 Q60 95 67 90" fill="none" stroke="#2b3a2e" stroke-width="2.4" stroke-linecap="round" />
+        <circle cx="42" cy="88" r="4" fill="#f4a0a0" opacity="0.55" />
+        <circle cx="78" cy="88" r="4" fill="#f4a0a0" opacity="0.55" />
+        <g class="s-feet">
+          <path d="M50 116 C48 124 44 126 46 132" fill="none" stroke="#4f9a5f" stroke-width="6" stroke-linecap="round" />
+          <path d="M70 116 C72 124 76 126 74 132" fill="none" stroke="#4f9a5f" stroke-width="6" stroke-linecap="round" />
+        </g>
+      </svg>
+      <div class="tag" hidden></div>
+    </div>
+  </template>
+
+  <script nonce="${nonce}" src="${script}"></script>
+</body>
+</html>
