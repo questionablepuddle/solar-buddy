@@ -123,8 +123,8 @@ body {
 @keyframes run-bob { 50% { transform: translateY(-7px) rotate(2deg); } }
 .buddy.run .s-arm-l { animation: swing calc(0.32s / var(--live, 1)) ease-in-out infinite; }
 .buddy.run .s-arm-r { animation: swing calc(0.32s / var(--live, 1)) ease-in-out infinite reverse; }
-.s-arm-l { transform-origin: 38px 74px; }
-.s-arm-r { transform-origin: 82px 74px; }
+.s-arm-l { transform-origin: 24px 72px; }
+.s-arm-r { transform-origin: 96px 72px; }
 @keyframes swing { 0%, 100% { transform: rotate(-26deg); } 50% { transform: rotate(32deg); } }
 
 /* swinging (arriving by vine from above) */
